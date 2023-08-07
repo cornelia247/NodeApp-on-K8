@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Todo List App</title>
+</head>
+<body>
+  <h1>Todo List App</h1>
+  <div>
+    <label for="taskTitle">Task Title:</label>
+    <input type="text" id="taskTitle" />
+    <button onclick="addTask()">Add Task</button>
+  </div>
+  <button onclick="viewAllTasks()">View All Tasks</button>
+  <ul id="taskList"></ul>
+
+  <script>
+    async function addTask() {
+      const taskTitle = document.getElementById('taskTitle').value;
+      if (!taskTitle) {
+        alert('Task Title is required.');
+        return;
+      }
+
+      try {
+        const response = await fetch('/tasks', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ title: taskTitle }),
+        });
+        const data = await response.json();
+
+        const taskList = document.getElementById('taskList');
+        const taskItem = document.createElement('li');
+        taskItem.textContent = `ID: ${data.id}, Title: ${data.title}`;
+
+        // Add delete button for the task
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = () => deleteTask(data.id);
+        taskItem.appendChild(deleteButton);
+
+        taskList.appendChild(taskItem);
+
+        document.getElementById('taskTitle').value = '';
+      } catch (error) {
+        console.error('Error adding task:', error);
+      }
+    }
+
+    async function deleteTask(id) {
+      try {
+        const response = await fetch(`/tasks/${id}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          loadTasks();
+        } else {
+          const errorData = await response.json();
+          alert('Error deleting task: ' + errorData.error);
+        }
+      } catch (error) {
+        console.error('Error deleting task:', error);
+      }
+    }
+
+    async function viewAllTasks() {
+      // Redirect to the "/tasks" page
+      window.location.href = '/tasks';
+    }
+
+    // Load tasks on page load
+    async function loadTasks() {
+      try {
+        const response = await fetch('/tasks');
+        const data = await response.json();
+
+        const taskList = document.getElementById('taskList');
+        taskList.innerHTML = '';
+
+        data.forEach((task) => {
+          const taskItem = document.createElement('li');
+          taskItem.textContent = `ID: ${task.id}, Title: ${task.title}`;
+
+          // Add delete button for the task
+          const deleteButton = document.createElement('button');
+          deleteButton.textContent = 'Delete';
+          deleteButton.onclick = () => deleteTask(task.id);
+          taskItem.appendChild(deleteButton);
+
+          taskList.appendChild(taskItem);
+        });
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+      }
+    }
+
+    loadTasks(); 
+  </script>
+</body>
+</html>

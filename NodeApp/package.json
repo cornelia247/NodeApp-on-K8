@@ -1,0 +1,12 @@
+{
+  "name": "nodeapp",
+  "version": "1.0.0",
+  "description": "A simple todo list app front-end",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"No tests specified\"",
+    "start": "node app.js"
+  },
+  "author": "Your Name",
+  "license": "ISC"
+}
